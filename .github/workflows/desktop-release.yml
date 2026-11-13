@@ -47,6 +47,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Generate app icons
+        shell: bash
+        run: |
+          python -m pip install --quiet Pillow
+          python scripts/generate-icons.py
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            iconutil -c icns build/icon.iconset -o build/icon.icns
+          fi
+
       - name: Build installers
         run: npm run ${{ matrix.command }} -- --publish never
 
