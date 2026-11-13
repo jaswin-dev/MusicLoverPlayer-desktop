@@ -30,31 +30,36 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "node_modules/**/*"
+      "package.json"
     ],
     "mac": {
       "target": [
         {
           "target": "dmg",
           "arch": [
-            "x64",
             "arm64"
           ]
         },
         {
           "target": "zip",
           "arch": [
-            "x64",
             "arm64"
           ]
         }
       ],
-      "category": "public.app-category.music"
+      "category": "public.app-category.music",
+      "icon": "build/icon.icns"
     },
     "win": {
       "target": [
-        "nsis"
-      ]
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
     },
     "publish": [
       {
@@ -62,7 +67,8 @@
         "owner": "jaswin-dev",
         "repo": "MusicLoverPlayer-desktop"
       }
-    ]
+    ],
+    "asar": true
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
