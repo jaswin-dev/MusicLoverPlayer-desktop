@@ -542,7 +542,7 @@ ipcMain.handle('app-update:get-state', () => ({ ...updateInfo, version: app.getV
 ipcMain.handle('app-update:check', async () => {
   if (!app.isPackaged) return { ...updateInfo, packaged: false, message: 'Updates are checked in installed builds.' };
   try { await autoUpdater.checkForUpdates(); return { ...updateInfo, version: app.getVersion(), packaged: true }; }
-  catch (error) { broadcastUpdate('app-update:error', { status: 'error', error: error.message || 'Update check failed.' }); return { ...updateInfo, packaged: true }; }
+  catch (error) { console.error('Desktop update check failed:', error); broadcastUpdate('app-update:error', { status: 'error', error: 'Automatic updates are unavailable. Open the Releases page to install the latest version manually.' }); return { ...updateInfo, packaged: true }; }
 });
 ipcMain.handle('app-update:install', () => {
   if (updateInfo.status !== 'downloaded') return false;
