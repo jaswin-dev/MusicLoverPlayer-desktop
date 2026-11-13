@@ -712,6 +712,15 @@ function App() {
 
   return (
     <div className={`ml-app ${dark ? '' : 'light-mode'}`}>
+      {showIntro && (
+        <div className="ml-intro-splash" role="status" aria-label="Starting MusicLover Player">
+          <div className="ml-intro-content">
+            <img src="/logo.png" alt="" className="ml-intro-logo" />
+            <span className="ml-intro-name">MUSICLOVER PLAYER</span>
+            <span className="ml-intro-loader"><i /><i /><i /><i /><i /></span>
+          </div>
+        </div>
+      )}
       <input
         ref={folderInputRef}
         type="file"
