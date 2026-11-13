@@ -12,16 +12,13 @@
     "dist:win": "npm run build && electron-builder --win"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
     "ffmpeg-static": "^5.3.0",
-    "ffprobe-static": "^3.1.0",
     "fluent-ffmpeg": "^2.1.3",
     "lucide-react": "^0.468.0",
     "mediabunny": "^1.65.2",
     "music-metadata": "^11.16.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "vite": "^6.0.7",
     "electron-updater": "^6.6.2"
   },
   "build": {
@@ -74,7 +71,9 @@
     "concurrently": "^9.1.2",
     "electron": "^45.3.1",
     "wait-on": "^8.0.2",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.7"
   },
   "description": "MusicLover Player desktop music library and streaming application for macOS and Windows.",
   "author": "Jaswin Dev"
