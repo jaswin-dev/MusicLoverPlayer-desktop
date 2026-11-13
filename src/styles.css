@@ -1523,3 +1523,18 @@
 .ml-update-later{border:1px solid rgba(255,255,255,.14);background:#20212b;color:#e8e8f0}
 .ml-update-primary{border:0;background:#8b5cf6;color:white}
 .ml-update-primary:disabled{cursor:default;opacity:.72}
+
+
+/* Branded desktop startup animation */
+.ml-intro-splash{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 42%,#211638 0%,#101018 48%,#09090e 100%);animation:ml-intro-fade-out .55s ease 1.65s forwards;pointer-events:none}
+.ml-intro-content{display:flex;flex-direction:column;align-items:center;gap:19px;animation:ml-intro-rise .8s cubic-bezier(.2,.8,.2,1) both}
+.ml-intro-logo{width:104px;height:104px;object-fit:contain;border-radius:27px;filter:drop-shadow(0 12px 32px rgba(139,92,246,.32));animation:ml-intro-pulse 1.6s ease-in-out infinite}
+.ml-intro-name{font:800 13px Manrope,sans-serif;letter-spacing:.24em;color:#d9d3eb}
+.ml-intro-loader{display:flex;align-items:center;gap:5px;height:22px;margin-top:5px}
+.ml-intro-loader i{display:block;width:4px;height:9px;border-radius:8px;background:#a78bfa;animation:ml-intro-wave .85s ease-in-out infinite alternate}
+.ml-intro-loader i:nth-child(2){animation-delay:.12s}.ml-intro-loader i:nth-child(3){animation-delay:.24s}.ml-intro-loader i:nth-child(4){animation-delay:.36s}.ml-intro-loader i:nth-child(5){animation-delay:.48s}
+@keyframes ml-intro-rise{from{opacity:0;transform:translateY(16px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes ml-intro-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@keyframes ml-intro-wave{from{height:6px;opacity:.55}to{height:21px;opacity:1}}
+@keyframes ml-intro-fade-out{to{opacity:0;visibility:hidden}}
+@media(prefers-reduced-motion:reduce){.ml-intro-splash{animation:none;opacity:0;visibility:hidden}.ml-intro-content,.ml-intro-logo,.ml-intro-loader i{animation:none}}
