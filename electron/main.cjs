@@ -63,11 +63,11 @@ function configureAutoUpdater() {
   autoUpdater.on('update-downloaded', info => broadcastUpdate('app-update:downloaded', { status: 'downloaded', availableVersion: info.version, percent: 100 }));
   autoUpdater.on('error', error => {
     console.error('Desktop update error:', error);
-    broadcastUpdate('app-update:error', { status: 'error', error: error.message || 'Update check failed.' });
+    broadcastUpdate('app-update:error', { status: 'error', error: 'Automatic updates are unavailable. Open the Releases page to install the latest version manually.' });
   });
   autoUpdater.checkForUpdates().catch(error => {
     console.error('Unable to check desktop updates:', error);
-    broadcastUpdate('app-update:error', { status: 'error', error: error.message || 'Update check failed.' });
+    broadcastUpdate('app-update:error', { status: 'error', error: 'Automatic updates are unavailable. Open the Releases page to install the latest version manually.' });
   });
 }
 
