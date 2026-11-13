@@ -123,6 +123,27 @@ function App() {
   const filesInputRef = useRef(null);
 
   const [tracks, setTracks] = useState([]);
+
+  const [updateState, setUpdateState] = useState(null);
+  const [updateDismissed, setUpdateDismissed] = useState(false);
+  const [updateBusy, setUpdateBusy] = useState(false);
+
+  useEffect(() => {
+    if (!window.musicLover?.getUpdateState) return undefined;
+    let active = true;
+    window.musicLover.getUpdateState().then(state => {
+      if (active && state?.packaged) setUpdateState(state);
+    }).catch(() => {});
+    const unsubscribe = window.musicLover.onUpdateEvent?.(event => {
+      if (!active) return;
+      setUpdateState(event);
+      if (['available', 'downloading', 'downloaded'].includes(event.status)) setUpdateDismissed(false);
+    });
+    return () => { active = false; unsubscribe?.(); };
+  }, []);
+
+  const updateRequired = Boolean(updateState?.packaged && ['available', 'downloading', 'downloaded', 'error'].includes(updateState.status));
+
   const tracksRef = useRef(tracks);
   tracksRef.current = tracks;
 
@@ -1483,6 +1504,30 @@ function App() {
           />
         </div>
       </footer>
+
+
+      {updateRequired && !updateDismissed && (
+        <div className="ml-update-overlay" role="presentation">
+          <section className="ml-update-dialog" role="dialog" aria-modal="true" aria-labelledby="ml-update-title">
+            <div className="ml-update-icon"><Music2 size={25} /></div>
+            <span className="ml-update-eyebrow">MUSICLOVER PLAYER</span>
+            <h2 id="ml-update-title">{updateState.status === 'downloaded' ? 'Update ready to install' : updateState.status === 'downloading' ? 'Downloading update' : updateState.status === 'error' ? 'Update could not be downloaded' : 'A new version is available'}</h2>
+            <p>{updateState.status === 'downloaded' ? 'The latest version is ready. Restart MusicLover Player to finish updating.' : updateState.status === 'downloading' ? 'Your update is downloading. You can keep listening while it finishes.' : updateState.status === 'error' ? (updateState.error || 'Check your internet connection and try again.') : 'Update MusicLover Player to get the latest improvements and fixes.'}</p>
+            {(updateState.status === 'downloading' || updateState.status === 'downloaded') && <div className="ml-update-progress"><span style={{ width: `${updateState.percent || 0}%` }} /></div>}
+            {updateState.availableVersion && <small>Version {updateState.availableVersion}</small>}
+            <div className="ml-update-actions">
+              <button type="button" className="ml-update-later" onClick={() => setUpdateDismissed(true)}>Later</button>
+              {updateState.status === 'downloaded' ? (
+                <button type="button" className="ml-update-primary" onClick={async () => { setUpdateBusy(true); try { await window.musicLover.installUpdate(); } finally { setUpdateBusy(false); } }}>{updateBusy ? 'Restarting…' : 'Restart & Update'}</button>
+              ) : updateState.status === 'error' ? (
+                <button type="button" className="ml-update-primary" onClick={() => window.musicLover.openReleasesPage()}>Download manually</button>
+              ) : (
+                <button type="button" className="ml-update-primary" disabled>{updateState.status === 'downloading' ? `Downloading ${updateState.percent || 0}%` : 'Downloading…'}</button>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
 
       <nav className="ml-mobile-nav">
         {[
