@@ -1506,3 +1506,20 @@
   justify-content: center;
   margin-top: 8px;
 }
+
+
+/* Desktop auto-update prompt */
+.ml-update-overlay{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:24px;background:rgba(4,5,10,.76);backdrop-filter:blur(10px)}
+.ml-update-dialog{width:min(100%,440px);padding:34px;border:1px solid rgba(255,255,255,.12);border-radius:24px;background:#11121a;color:#f7f7fb;box-shadow:0 24px 90px rgba(0,0,0,.5);text-align:center}
+.ml-update-icon{width:58px;height:58px;margin:0 auto 18px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(135deg,#8b5cf6,#4f46e5);color:#fff}
+.ml-update-eyebrow{font-size:10px;letter-spacing:.2em;font-weight:800;color:#a5a1ba}
+.ml-update-dialog h2{margin:12px 0 10px;font-size:25px;line-height:1.2}
+.ml-update-dialog p{margin:0 auto 20px;max-width:340px;color:#aaaabd;font-size:14px;line-height:1.65}
+.ml-update-progress{height:7px;margin:0 0 12px;overflow:hidden;border-radius:99px;background:#292936}
+.ml-update-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#8b5cf6,#c084fc);transition:width .25s}
+.ml-update-dialog small{display:block;margin:0 0 16px;color:#aaaabd}
+.ml-update-actions{display:flex;justify-content:center;gap:10px;margin-top:24px}
+.ml-update-actions button{min-height:44px;padding:0 20px;border-radius:12px;font-weight:700;cursor:pointer}
+.ml-update-later{border:1px solid rgba(255,255,255,.14);background:#20212b;color:#e8e8f0}
+.ml-update-primary{border:0;background:#8b5cf6;color:white}
+.ml-update-primary:disabled{cursor:default;opacity:.72}
