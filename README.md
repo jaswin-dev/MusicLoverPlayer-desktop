@@ -39,3 +39,4 @@ Build each platform on its target OS (or use a suitable CI runner). On macOS, El
 
 Music files are read from folders selected by the user and are not uploaded by this app. LRCLIB requests send the song title and artist to retrieve lyrics. Playlist and liked-song data remain in the app's local storage.
 # MusicLoverPlayer-desktop
+# MusicLoverPlayer-desktop
