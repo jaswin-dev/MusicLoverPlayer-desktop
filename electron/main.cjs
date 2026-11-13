@@ -4,8 +4,11 @@ const {
   dialog,
   ipcMain,
   protocol,
-  net
+  net,
+  shell
 } = require('electron');
+
+const { autoUpdater } = require('electron-updater');
 
 const path = require('path');
 const fs = require('fs');
@@ -39,6 +42,34 @@ let library = [];
 let tracksById = new Map();
 let libraryRoot = null;
 let settingsPath = null;
+let updateInfo = { status: 'idle', version: app.getVersion(), availableVersion: null, percent: 0, error: null };
+let updateCheckStarted = false;
+
+function broadcastUpdate(event, payload = {}) {
+  updateInfo = { ...updateInfo, ...payload };
+  if (win && !win.isDestroyed()) win.webContents.send(event, updateInfo);
+}
+
+function configureAutoUpdater() {
+  if (!app.isPackaged || updateCheckStarted) return;
+  updateCheckStarted = true;
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.allowDowngrade = false;
+  autoUpdater.on('checking-for-update', () => broadcastUpdate('app-update:checking', { status: 'checking', error: null }));
+  autoUpdater.on('update-available', info => broadcastUpdate('app-update:available', { status: 'available', availableVersion: info.version, percent: 0 }));
+  autoUpdater.on('update-not-available', info => broadcastUpdate('app-update:latest', { status: 'latest', version: info.version, availableVersion: null }));
+  autoUpdater.on('download-progress', progress => broadcastUpdate('app-update:downloading', { status: 'downloading', percent: Math.round(progress.percent || 0) }));
+  autoUpdater.on('update-downloaded', info => broadcastUpdate('app-update:downloaded', { status: 'downloaded', availableVersion: info.version, percent: 100 }));
+  autoUpdater.on('error', error => {
+    console.error('Desktop update error:', error);
+    broadcastUpdate('app-update:error', { status: 'error', error: error.message || 'Update check failed.' });
+  });
+  autoUpdater.checkForUpdates().catch(error => {
+    console.error('Unable to check desktop updates:', error);
+    broadcastUpdate('app-update:error', { status: 'error', error: error.message || 'Update check failed.' });
+  });
+}
 
 const conversionCache = new Map();
 
@@ -507,6 +538,19 @@ ipcMain.handle('music:library-info', () => ({
   supportedFormats: [...AUDIO_EXTENSIONS]
 }));
 
+ipcMain.handle('app-update:get-state', () => ({ ...updateInfo, version: app.getVersion(), packaged: app.isPackaged }));
+ipcMain.handle('app-update:check', async () => {
+  if (!app.isPackaged) return { ...updateInfo, packaged: false, message: 'Updates are checked in installed builds.' };
+  try { await autoUpdater.checkForUpdates(); return { ...updateInfo, version: app.getVersion(), packaged: true }; }
+  catch (error) { broadcastUpdate('app-update:error', { status: 'error', error: error.message || 'Update check failed.' }); return { ...updateInfo, packaged: true }; }
+});
+ipcMain.handle('app-update:install', () => {
+  if (updateInfo.status !== 'downloaded') return false;
+  setImmediate(() => autoUpdater.quitAndInstall(false, true));
+  return true;
+});
+ipcMain.handle('app-update:open-releases', () => shell.openExternal('https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/latest'));
+
 ipcMain.handle('music:conversion-status', () => ({
   ffmpegAvailable: Boolean(ffmpegPath && fs.existsSync(ffmpegPath)),
   conversionsInProgress: conversionCache.size
@@ -525,6 +569,7 @@ app.whenReady().then(async () => {
     registerMusicProtocol();
     await scanSavedLibrary();
     await createWindow();
+    configureAutoUpdater();
 
     app.on('activate', async () => {
       if (BrowserWindow.getAllWindows().length === 0) {
