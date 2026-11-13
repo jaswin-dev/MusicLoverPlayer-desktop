@@ -40,3 +40,12 @@ Build each platform on its target OS (or use a suitable CI runner). On macOS, El
 Music files are read from folders selected by the user and are not uploaded by this app. LRCLIB requests send the song title and artist to retrieve lyrics. Playlist and liked-song data remain in the app's local storage.
 # MusicLoverPlayer-desktop
 # MusicLoverPlayer-desktop
+
+
+## Automatic desktop updates
+
+Installed macOS and Windows builds check GitHub Releases for updates using `electron-updater`. The release must include the generated installer and update metadata files (`latest-mac.yml` for macOS and `latest.yml` for Windows).
+
+To publish a release, open **Actions → Build and publish desktop releases → Run workflow**, enter a version such as `1.0.1`, and run it. GitHub Actions builds the macOS DMG/ZIP and Windows NSIS installer, then publishes the files and update metadata to a GitHub Release. Future releases can also be triggered by pushing a `v*` tag whose version matches `package.json`.
+
+Builds are unsigned by default. macOS users may see Gatekeeper warnings until the app is signed and notarized with an Apple Developer identity.
