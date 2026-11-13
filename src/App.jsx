@@ -123,6 +123,12 @@ function App() {
   const filesInputRef = useRef(null);
 
   const [tracks, setTracks] = useState([]);
+  const [showIntro, setShowIntro] = useState(true);
+
+  useEffect(() => {
+    const introTimer = window.setTimeout(() => setShowIntro(false), 2200);
+    return () => window.clearTimeout(introTimer);
+  }, []);
 
   const [updateState, setUpdateState] = useState(null);
   const [updateDismissed, setUpdateDismissed] = useState(false);
@@ -1512,7 +1518,7 @@ function App() {
             <div className="ml-update-icon"><Music2 size={25} /></div>
             <span className="ml-update-eyebrow">MUSICLOVER PLAYER</span>
             <h2 id="ml-update-title">{updateState.status === 'downloaded' ? 'Update ready to install' : updateState.status === 'downloading' ? 'Downloading update' : updateState.status === 'error' ? 'Update could not be downloaded' : 'A new version is available'}</h2>
-            <p>{updateState.status === 'downloaded' ? 'The latest version is ready. Restart MusicLover Player to finish updating.' : updateState.status === 'downloading' ? 'Your update is downloading. You can keep listening while it finishes.' : updateState.status === 'error' ? (updateState.error || 'Check your internet connection and try again.') : 'Update MusicLover Player to get the latest improvements and fixes.'}</p>
+            <p>{updateState.status === 'downloaded' ? 'The latest version is ready. Restart MusicLover Player to finish updating.' : updateState.status === 'downloading' ? 'Your update is downloading. You can keep listening while it finishes.' : updateState.status === 'error' ? 'Automatic updates are temporarily unavailable. You can open the Releases page to install the latest version manually.' : 'Update MusicLover Player to get the latest improvements and fixes.'}</p>
             {(updateState.status === 'downloading' || updateState.status === 'downloaded') && <div className="ml-update-progress"><span style={{ width: `${updateState.percent || 0}%` }} /></div>}
             {updateState.availableVersion && <small>Version {updateState.availableVersion}</small>}
             <div className="ml-update-actions">
