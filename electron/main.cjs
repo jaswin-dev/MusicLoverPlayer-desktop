@@ -47,6 +47,92 @@ let tracksById = new Map();
 let libraryRoot = null;
 let settingsPath = null;
 
+const { shell } = require('electron');
+const { autoUpdater } = require('electron-updater');
+
+let updaterStarted = false;
+let updateState = {
+  status: 'idle',
+  version: app.getVersion(),
+  availableVersion: null,
+  percent: 0,
+  error: null
+};
+
+function sendUpdateState(eventName, fields = {}) {
+  updateState = { ...updateState, ...fields };
+  if (win && !win.isDestroyed()) {
+    win.webContents.send(eventName, updateState);
+  }
+}
+
+function configureDesktopUpdater() {
+  if (!app.isPackaged || updaterStarted) return;
+  updaterStarted = true;
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = false;
+  autoUpdater.allowDowngrade = false;
+  autoUpdater.on('checking-for-update', () => sendUpdateState('app-update:checking', { status: 'checking', error: null }));
+  autoUpdater.on('update-available', info => sendUpdateState('app-update:available', { status: 'available', availableVersion: info.version, percent: 0 }));
+  autoUpdater.on('update-not-available', info => sendUpdateState('app-update:latest', { status: 'latest', version: info.version, availableVersion: null }));
+  autoUpdater.on('download-progress', progress => sendUpdateState('app-update:downloading', { status: 'downloading', percent: Math.round(progress.percent || 0) }));
+  autoUpdater.on('update-downloaded', info => sendUpdateState('app-update:downloaded', { status: 'downloaded', availableVersion: info.version, percent: 100 }));
+  autoUpdater.on('error', error => {
+    console.error('Desktop update check failed:', error);
+    sendUpdateState('app-update:error', {
+      status: 'error',
+      error: 'Automatic update checking is unavailable. Use the official MusicLover releases page to install the latest version.'
+    });
+  });
+  autoUpdater.checkForUpdates().catch(error => {
+    console.error('Desktop update check failed:', error);
+    sendUpdateState('app-update:error', {
+      status: 'error',
+      error: 'Automatic update checking is unavailable. Use the official MusicLover releases page to install the latest version.'
+    });
+  });
+}
+
+ipcMain.handle('app-update:get-state', () => ({
+  ...updateState,
+  version: app.getVersion(),
+  packaged: app.isPackaged,
+  platform: process.platform,
+  arch: process.arch
+}));
+
+ipcMain.handle('app-update:check', async () => {
+  if (!app.isPackaged) return { ...updateState, packaged: false };
+  try {
+    await autoUpdater.checkForUpdates();
+    return { ...updateState, version: app.getVersion(), packaged: true };
+  } catch (error) {
+    console.error('Desktop update check failed:', error);
+    sendUpdateState('app-update:error', {
+      status: 'error',
+      error: 'Automatic update checking is unavailable. Use the official MusicLover releases page to install the latest version.'
+    });
+    return { ...updateState, packaged: true };
+  }
+});
+
+ipcMain.handle('app-update:download', async () => {
+  if (!app.isPackaged || updateState.status !== 'available') return false;
+  await autoUpdater.downloadUpdate();
+  return true;
+});
+
+ipcMain.handle('app-update:install', () => {
+  if (updateState.status !== 'downloaded') return false;
+  setImmediate(() => autoUpdater.quitAndInstall(false, true));
+  return true;
+});
+
+ipcMain.handle('app-update:open-releases', () =>
+  shell.openExternal('https://github.com/jaswin-dev/musiclover-updates/releases')
+);
+
+
 const conversionCache = new Map();
 
 protocol.registerSchemesAsPrivileged([
@@ -533,6 +619,7 @@ app.whenReady().then(async () => {
     registerMusicProtocol();
     await scanSavedLibrary();
     await createWindow();
+    configureDesktopUpdater();
 
     app.on('activate', async () => {
       if (BrowserWindow.getAllWindows().length === 0) {
