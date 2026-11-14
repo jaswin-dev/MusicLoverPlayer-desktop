@@ -72,8 +72,10 @@
     "asar": true,
     "publish": [
       {
-        "provider": "generic",
-        "url": "https://raw.githubusercontent.com/jaswin-dev/musiclover-updates/main/desktop"
+        "provider": "github",
+        "owner": "jaswin-dev",
+        "repo": "MusicLoverPlayer-desktop",
+        "releaseType": "release"
       }
     ]
   },
