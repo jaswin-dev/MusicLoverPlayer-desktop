@@ -1,6 +1,6 @@
 {
   "name": "musiclover-player",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "main": "electron/main.cjs",
@@ -21,7 +21,8 @@
     "music-metadata": "^11.16.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "vite": "^6.0.7"
+    "vite": "^6.0.7",
+    "electron-updater": "^6.6.2"
   },
   "build": {
     "appId": "com.musiclover.player",
@@ -29,12 +30,22 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "node_modules/**/*"
+      "package.json"
     ],
     "mac": {
       "target": [
-        "dmg",
-        "zip"
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
+        }
       ],
       "category": "public.app-category.music",
       "icon": "build/icon.icns",
@@ -46,7 +57,12 @@
     },
     "win": {
       "target": [
-        "nsis"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "icon": "build/icon.ico",
       "executableName": "MusicLover Player"
@@ -54,7 +70,14 @@
     "directories": {
       "buildResources": "build"
     },
-    "executableName": "MusicLover Player"
+    "executableName": "MusicLover Player",
+    "asar": true,
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://raw.githubusercontent.com/jaswin-dev/musiclover-updates/main/desktop"
+      }
+    ]
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
@@ -62,7 +85,7 @@
     "wait-on": "^8.0.2",
     "electron-builder": "^26.0.12"
   },
-  "description": "MusicLover Player - Local music library and audio player",
-  "author": "MusicLover",
+  "description": "MusicLover Player desktop music library and streaming application for macOS and Windows.",
+  "author": "Jaswin Dev",
   "productName": "MusicLover Player"
 }
