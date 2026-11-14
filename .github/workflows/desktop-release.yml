@@ -122,10 +122,14 @@ jobs:
             exit 1
           fi
 
-          gh release create "$RELEASE_TAG" "${ASSETS[@]}" \
-            --repo jaswin-dev/musiclover-updates \
-            --title "MusicLover Player $VERSION ($PLATFORM_KEY)" \
-            --notes "Desktop update $VERSION for $PLATFORM_KEY"
+          if gh release view "$RELEASE_TAG" --repo jaswin-dev/musiclover-updates >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "${ASSETS[@]}" --repo jaswin-dev/musiclover-updates --clobber
+          else
+            gh release create "$RELEASE_TAG" "${ASSETS[@]}" \
+              --repo jaswin-dev/musiclover-updates \
+              --title "MusicLover Player $VERSION ($PLATFORM_KEY)" \
+              --notes "Desktop update $VERSION for $PLATFORM_KEY"
+          fi
 
           MANIFEST_PATH="desktop/$METADATA"
           MANIFEST_CONTENT="$(base64 < "dist/$METADATA" | tr -d '\n')"
