@@ -1,0 +1,8 @@
+version: 1.0.24
+files:
+  - url: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.24-windows-x64/MusicLover-Player-Setup-1.0.24.exe
+    sha512: pbr6BUFrHYkGgOO1yZVdKCxMwUpePb8u1IcQ982Y43RVuGKDvKi2JB/w0dDQIEnG4cp6gvuYV/kB4VplTGHGpQ==
+    size: 360255897
+path: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.24-windows-x64/MusicLover-Player-Setup-1.0.24.exe
+sha512: pbr6BUFrHYkGgOO1yZVdKCxMwUpePb8u1IcQ982Y43RVuGKDvKi2JB/w0dDQIEnG4cp6gvuYV/kB4VplTGHGpQ==
+releaseDate: '2026-11-14T06:35:12.750Z'
