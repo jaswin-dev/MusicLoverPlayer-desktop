@@ -11,7 +11,7 @@ tag = os.environ["RELEASE_TAG"]
 if not metadata_path.is_file():
     raise SystemExit(f"Electron update metadata not found: {metadata_path}")
 
-base = f"https://github.com/jaswin-dev/musiclover-updates/releases/download/{tag}/"
+base = f"https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/{tag}/"
 
 def rewrite_url(match):
     filename = match.group(2).strip().strip("'\"")
