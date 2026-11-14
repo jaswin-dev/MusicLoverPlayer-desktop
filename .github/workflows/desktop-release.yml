@@ -46,8 +46,8 @@ jobs:
           npm version "${VERSION_NAME}" --no-git-tag-version --allow-same-version
       - name: Install dependencies
         run: npm install
-      - name: Generate Windows and macOS icons
-        if: runner.os != 'Windows'
+      - name: Generate macOS icon
+        if: runner.os == 'macOS'
         shell: bash
         run: |
           python -m pip install --quiet Pillow
