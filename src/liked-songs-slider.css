@@ -1,0 +1,71 @@
+/* Append these styles to your existing main stylesheet (for example, App.css). */
+.liked-slider {
+  margin: 26px 0 34px;
+  padding: 22px;
+  overflow: hidden;
+  border: 1px solid #292e3b;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #191b29, #11141d);
+}
+.liked-slider-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.liked-eyebrow, .liked-track-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #c1a2ff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+}
+.liked-slider-heading h2 { margin: 9px 0 5px; color: #f6f5fa; font-size: 23px; }
+.liked-slider-heading p, .liked-info p { margin: 0; color: #a4aabd; font-size: 13px; }
+.liked-arrows { display: flex; gap: 8px; }
+.liked-arrows button {
+  display: grid; width: 38px; height: 38px; place-items: center;
+  color: #f4f0ff; background: #252938; border: 1px solid #353a4a;
+  border-radius: 50%; cursor: pointer;
+}
+.liked-arrows button:hover { background: #493266; }
+.liked-slide {
+  display: grid; grid-template-columns: minmax(150px, .8fr) minmax(0, 1.2fr);
+  align-items: center; gap: 25px; animation: liked-appear .25s ease;
+}
+.liked-art {
+  position: relative; display: grid; min-height: 205px; place-items: center;
+  overflow: hidden; color: #fff; border-radius: 14px;
+  background: radial-gradient(circle at 75% 20%, #ff91c155, transparent 35%),
+    linear-gradient(140deg, #583c82, #30294c 55%, #171c2b);
+}
+.liked-art-circle {
+  display: grid; width: 105px; height: 105px; place-items: center;
+  border: 1px solid #ffffff50; border-radius: 50%; background: #ffffff14;
+}
+.liked-art-heart { position: absolute; right: 17px; bottom: 17px; color: #ff8cb5; }
+.liked-info { min-width: 0; }
+.liked-info h3 { margin: 15px 0 8px; overflow-wrap: anywhere; color: #fff; font-size: clamp(20px, 3vw, 30px); }
+.liked-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 23px; }
+.liked-play-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 18px; color: #fff; font-weight: 600;
+  background: linear-gradient(135deg, #a05bff, #7041e8); border: 0;
+  border-radius: 30px; cursor: pointer;
+}
+.liked-actions > span { color: #969db0; font-size: 11px; }
+.liked-dots { display: flex; justify-content: center; gap: 7px; margin-top: 20px; }
+.liked-dots button { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 10px; background: #414555; cursor: pointer; }
+.liked-dots button.active { width: 23px; background: #b18aff; }
+.liked-empty { display: flex; min-height: 130px; flex-direction: column; align-items: center; justify-content: center; gap: 9px; color: #b18aff; text-align: center; }
+.liked-empty b { color: #f5f5fa; }
+.liked-empty span { color: #a4aabd; font-size: 13px; }
+@keyframes liked-appear { from { opacity: .5; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 600px) {
+  .liked-slider { padding: 16px; }
+  .liked-slide { grid-template-columns: 1fr; gap: 17px; }
+  .liked-art { min-height: 160px; }
+}
