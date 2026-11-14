@@ -38,3 +38,50 @@ Build each platform on its target OS (or use a suitable CI runner). On macOS, El
 ## Privacy
 
 Music files are read from folders selected by the user and are not uploaded by this app. LRCLIB requests send the song title and artist to retrieve lyrics. Playlist and liked-song data remain in the app's local storage.
+
+
+## Desktop auto-updates (macOS and Windows)
+
+The desktop app uses `electron-updater` with a public generic update feed hosted
+in the separate `jaswin-dev/musiclover-updates` repository. It checks the
+platform-specific metadata at app startup. When a newer version is published,
+the app shows **Download update**; after the download completes, the user
+selects **Restart & Update** to install it.
+
+The desktop release workflow builds Apple Silicon macOS (ARM64) and Windows
+(x64) installers separately. It uploads the installers and publishes
+`desktop-latest.json` to the public updates repository. The Android
+`latest.json` remains independent and is not overwritten.
+
+### One-time setup
+
+Add the following repository secret to this private desktop source repository:
+
+- `UPDATE_REPO_TOKEN`: a GitHub token with permission to publish releases and
+  update contents in `jaswin-dev/musiclover-updates`.
+
+The public updates repository must remain public. Never embed the token in the
+desktop application or commit it to source control.
+
+### Every future desktop update
+
+1. Make and push source changes to `main`.
+2. The workflow increments the desktop version, builds the macOS ARM64 and
+   Windows x64 installers, and computes SHA-256 hashes.
+3. The workflow publishes platform-specific release assets and updates
+   `desktop-latest.json` in the public updates repository.
+4. Installed desktop apps detect the higher version, download the matching
+   platform update, and prompt the user to restart and install.
+
+### Platform notes
+
+- macOS updates are delivered for Apple Silicon. For distribution outside
+  your own machine, sign and notarize the app with an Apple Developer
+  certificate. Configure Apple signing/notarization secrets before enabling
+  notarization in the release workflow.
+- Windows installers are built for x64. For distribution outside testing,
+  sign the NSIS installer with a trusted code-signing certificate.
+- macOS and Windows still show their normal platform installation/security
+  prompts when applicable. The updater cannot silently bypass those prompts.
+
+Workflow: [Build and publish desktop updates](https://github.com/jaswin-dev/MusicLoverPlayer-desktop/actions/workflows/desktop-release.yml)
