@@ -125,11 +125,12 @@ jobs:
       - name: Publish one release with both platforms
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: 1.0.${{ github.run_number + 1 }}
           REPOSITORY: jaswin-dev/MusicLoverPlayer-desktop
         shell: bash
         run: |
           set -euo pipefail
+          VERSION_CODE="$((GITHUB_RUN_NUMBER + 1))"
+          VERSION="1.0.${VERSION_CODE}"
           RELEASE_TAG="desktop-v${VERSION}"
           ASSETS=()
           for file in release-assets/*.dmg release-assets/*.zip release-assets/*.exe release-assets/*.blockmap; do
