@@ -43,14 +43,14 @@ Music files are read from folders selected by the user and are not uploaded by t
 ## Desktop auto-updates (macOS and Windows)
 
 The desktop app uses `electron-updater` with a public generic update feed hosted
-in the separate `jaswin-dev/musiclover-updates` repository. It checks the
+in the same `jaswin-dev/MusicLoverPlayer-desktop` repository. It checks the
 platform-specific metadata at app startup. When a newer version is published,
 the app shows **Download update**; after the download completes, the user
 selects **Restart & Update** to install it.
 
 The desktop release workflow builds Apple Silicon macOS (ARM64) and Windows
 (x64) installers separately. It uploads the installers and publishes
-`desktop/latest-mac.yml` for macOS and `desktop/latest.yml` for Windows to the public updates repository. The Android
+`latest-mac.yml` for macOS and `latest.yml` for Windows to the desktop repository. The Android
 `latest.json` remains independent and is not overwritten.
 
 ### One-time setup
@@ -58,9 +58,9 @@ The desktop release workflow builds Apple Silicon macOS (ARM64) and Windows
 Add the following repository secret to this private desktop source repository:
 
 - `UPDATE_REPO_TOKEN`: a GitHub token with permission to publish releases and
-  update contents in `jaswin-dev/musiclover-updates`.
+  publish releases in this repository.
 
-The public updates repository must remain public. Never embed the token in the
+The desktop repository must remain public. Never embed the token in the
 desktop application or commit it to source control.
 
 ### Every future desktop update
@@ -68,8 +68,7 @@ desktop application or commit it to source control.
 1. Make and push source changes to `main`.
 2. The workflow increments the desktop version, builds the macOS ARM64 and
    Windows x64 installers, and computes SHA-256 hashes.
-3. The workflow publishes platform-specific release assets and updates
-   `desktop/latest-mac.yml` for macOS and `desktop/latest.yml` for Windows in the public updates repository.
+3. The workflow publishes platform-specific release assets and updater metadata (`latest-mac.yml` and `latest.yml`) as GitHub Releases in this same repository.
 4. Installed desktop apps detect the higher version, download the matching
    platform update, and prompt the user to restart and install.
 
