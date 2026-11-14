@@ -1,11 +1,11 @@
-version: 1.0.33
+version: 1.0.34
 files:
-  - url: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.33/MusicLover%20Player-1.0.33-arm64-mac.zip
-    sha512: wTJdHe7Sf6Ppc6Wr7Hq1JTStq0QM/zLUl2pCyI/Qq7TAP0eJjdXaUdPjwfBNaa22X/kAxpx/qi4aS3JtfRAwOw==
-    size: 341047451
-  - url: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.33/MusicLover%20Player-1.0.33-arm64.dmg
-    sha512: 8ONnEzUmdGV8oIhRppgN94aBslDQxus4+KvOsnG/xYn+FzeMca5veGv5VzaGD9ilCKgtGkfAhPAyimk+sZ+4jw==
-    size: 352158986
-path: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.33/MusicLover%20Player-1.0.33-arm64-mac.zip
-sha512: wTJdHe7Sf6Ppc6Wr7Hq1JTStq0QM/zLUl2pCyI/Qq7TAP0eJjdXaUdPjwfBNaa22X/kAxpx/qi4aS3JtfRAwOw==
-releaseDate: '2026-11-14T06:58:46.349Z'
+  - url: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.34/MusicLover%20Player-1.0.34-arm64-mac.zip
+    sha512: x6pR+drDD333f80KjMbgCv+1vKgDo0RrW4f80H5/1YK/c+3L51CJP2aim4dVeepHqeMDKeKkqDQm4hfZ6qsjMA==
+    size: 341047448
+  - url: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.34/MusicLover%20Player-1.0.34-arm64.dmg
+    sha512: cV1N6piNlzTddfrFE/dbrClGTUKTeHMEeEbzUR54yZhyOCnWr6O358lw6yJ6UdcIkcQeTcyw48wSEM0UuNe/Tg==
+    size: 352159146
+path: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.34/MusicLover%20Player-1.0.34-arm64-mac.zip
+sha512: x6pR+drDD333f80KjMbgCv+1vKgDo0RrW4f80H5/1YK/c+3L51CJP2aim4dVeepHqeMDKeKkqDQm4hfZ6qsjMA==
+releaseDate: '2026-11-14T07:04:29.814Z'
