@@ -1,11 +1,11 @@
-version: 1.0.20
+version: 1.0.23
 files:
-  - url: https://github.com/jaswin-dev/musiclover-updates/releases/download/desktop-v1.0.20-mac-arm64/MusicLover Player-1.0.20-arm64-mac.zip
-    sha512: fmyoKzTuyf2YOzaVsjKsr8yGHHj9TJQcdrvOS5xhkrnAVhGLUBaBNycXZvpfEZ4wJmSngaKY97kQdLmK8JSiLg==
-    size: 341047381
-  - url: https://github.com/jaswin-dev/musiclover-updates/releases/download/desktop-v1.0.20-mac-arm64/MusicLover Player-1.0.20-arm64.dmg
-    sha512: X3hSSHDXkRuNzPAOGxfHTMeXk3IUh2+5lkKnB5XNVnb9hpYrJa0bMz11yijzVTDdKccHmckdIKL19BaAzMiXjw==
-    size: 352157436
-path: https://github.com/jaswin-dev/musiclover-updates/releases/download/desktop-v1.0.20-mac-arm64/MusicLover Player-1.0.20-arm64-mac.zip
-sha512: fmyoKzTuyf2YOzaVsjKsr8yGHHj9TJQcdrvOS5xhkrnAVhGLUBaBNycXZvpfEZ4wJmSngaKY97kQdLmK8JSiLg==
-releaseDate: '2026-11-14T06:27:31.279Z'
+  - url: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.23-mac-arm64/MusicLover-Player-1.0.23-arm64-mac.zip
+    sha512: O0/hqQzHAd9cLWRxOHEDIo7LvC2xnydWifcWstAr0YEBhPMck5WkM/BZKrSmXPdB2R/26mr8ye/8TmeoppiWPQ==
+    size: 341047390
+  - url: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.23-mac-arm64/MusicLover-Player-1.0.23-arm64.dmg
+    sha512: J6mK28sd6o4368Vq5yDBL6HkNf35I8rZ1VHdghPHbMY73NyYG5vd7LpTy9WsT4J4tiCW9D4LcDOMfzk/1oHysw==
+    size: 352157437
+path: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.23-mac-arm64/MusicLover-Player-1.0.23-arm64-mac.zip
+sha512: O0/hqQzHAd9cLWRxOHEDIo7LvC2xnydWifcWstAr0YEBhPMck5WkM/BZKrSmXPdB2R/26mr8ye/8TmeoppiWPQ==
+releaseDate: '2026-11-14T06:29:56.829Z'
