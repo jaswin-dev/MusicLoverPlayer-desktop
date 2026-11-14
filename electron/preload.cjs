@@ -31,5 +31,20 @@ contextBridge.exposeInMainWorld('musicLover', {
     ipcRenderer.invoke('music:library-info'),
 
   getConversionStatus: () =>
-    ipcRenderer.invoke('music:conversion-status')
+    ipcRenderer.invoke('music:conversion-status'),
+
+  getUpdateState: () => ipcRenderer.invoke('app-update:get-state'),
+  checkForUpdate: () => ipcRenderer.invoke('app-update:check'),
+  downloadUpdate: () => ipcRenderer.invoke('app-update:download'),
+  installUpdate: () => ipcRenderer.invoke('app-update:install'),
+  openReleasesPage: () => ipcRenderer.invoke('app-update:open-releases'),
+  onUpdateEvent: callback => {
+    const events = ['app-update:checking', 'app-update:available', 'app-update:latest', 'app-update:downloading', 'app-update:downloaded', 'app-update:error'];
+    const listeners = events.map(name => {
+      const listener = (_event, payload) => callback(payload);
+      ipcRenderer.on(name, listener);
+      return [name, listener];
+    });
+    return () => listeners.forEach(([name, listener]) => ipcRenderer.removeListener(name, listener));
+  }
 });
