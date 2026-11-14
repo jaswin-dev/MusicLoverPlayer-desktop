@@ -119,6 +119,7 @@ function Art({ track, index = 0 }) {
 }
 
 
+// Release test: verify automatic update download, installation, and relaunch.
 function DesktopUpdatePrompt() {
   const [state, setState] = useState(null);
   const [dismissed, setDismissed] = useState(false);
