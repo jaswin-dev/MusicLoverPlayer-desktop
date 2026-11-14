@@ -1,8 +1,8 @@
-version: 1.0.32
+version: 1.0.33
 files:
-  - url: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.32/MusicLover%20Player%20Setup%201.0.32.exe
-    sha512: 3CdpRXCNAG7RSEMzibB1a3k8O8pwqXu9PXf9hmxvfk0IHNs2BLyNwlBbXYnDISeRRnqyUcYMomQ0bsOoUTxdaw==
-    size: 360255862
-path: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.32/MusicLover%20Player%20Setup%201.0.32.exe
-sha512: 3CdpRXCNAG7RSEMzibB1a3k8O8pwqXu9PXf9hmxvfk0IHNs2BLyNwlBbXYnDISeRRnqyUcYMomQ0bsOoUTxdaw==
-releaseDate: '2026-11-14T06:54:45.591Z'
+  - url: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.33/MusicLover%20Player%20Setup%201.0.33.exe
+    sha512: FoS2b22ONcuq2jjufSiRPq4XHJUhNGG97bGNBA9US8K3i0GhjjAS4XjXq1ditwveTz+ZK/l4KeBo4KnAJMFX4w==
+    size: 360269520
+path: https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases/download/desktop-v1.0.33/MusicLover%20Player%20Setup%201.0.33.exe
+sha512: FoS2b22ONcuq2jjufSiRPq4XHJUhNGG97bGNBA9US8K3i0GhjjAS4XjXq1ditwveTz+ZK/l4KeBo4KnAJMFX4w==
+releaseDate: '2026-11-14T06:59:53.950Z'
