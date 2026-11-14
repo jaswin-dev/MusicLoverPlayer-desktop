@@ -12,14 +12,20 @@ on:
       - "package-lock.json"
       - "vite.config.js"
       - ".github/workflows/desktop-release.yml"
+      - "scripts/**"
 
 permissions:
   contents: read
 
+concurrency:
+  group: desktop-release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
-    name: Build ${{ matrix.platform }} desktop installer
+    name: Build ${{ matrix.platform }} installer
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -27,16 +33,24 @@ jobs:
           - platform: macOS ARM64
             os: macos-latest
             command: dist:mac
+            platform_key: mac-arm64
+            metadata: latest-mac.yml
           - platform: Windows x64
             os: windows-latest
             command: dist:win
+            platform_key: windows-x64
+            metadata: latest.yml
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - name: Set build version
+
+      - name: Set desktop version
         id: version
         shell: bash
         run: |
@@ -44,8 +58,10 @@ jobs:
           VERSION_NAME="1.0.${VERSION_CODE}"
           echo "version=${VERSION_NAME}" >> "$GITHUB_OUTPUT"
           npm version "${VERSION_NAME}" --no-git-tag-version --allow-same-version
+
       - name: Install dependencies
         run: npm install
+
       - name: Generate macOS icon
         if: runner.os == 'macOS'
         shell: bash
@@ -53,18 +69,83 @@ jobs:
           python -m pip install --quiet Pillow
           python scripts/generate-icons.py
           iconutil -c icns build/icon.iconset -o build/icon.icns
+
       - name: Generate Windows icon
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           python -m pip install --quiet Pillow
           python scripts/generate-icons.py
+
       - name: Build installer
         run: npm run ${{ matrix.command }} -- --publish never
-      - name: Upload installer files
+
+      - name: Validate update metadata
+        shell: bash
+        env:
+          EXPECTED_METADATA: ${{ matrix.metadata }}
+        run: |
+          test -s "dist/$EXPECTED_METADATA"
+          echo "Verified dist/$EXPECTED_METADATA"
+
+      - name: Prepare platform update metadata
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          PLATFORM_KEY: ${{ matrix.platform_key }}
+          RELEASE_TAG: desktop-v${{ steps.version.outputs.version }}-${{ matrix.platform_key }}
+          METADATA: ${{ matrix.metadata }}
+        run: |
+          python -m pip install --quiet PyYAML
+          python scripts/prepare-desktop-feed.py "dist/$METADATA"
+
+      - name: Publish installers and platform update metadata
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.UPDATE_REPO_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PLATFORM_KEY: ${{ matrix.platform_key }}
+          RELEASE_TAG: desktop-v${{ steps.version.outputs.version }}-${{ matrix.platform_key }}
+          METADATA: ${{ matrix.metadata }}
+        run: |
+          set -euo pipefail
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Missing UPDATE_REPO_TOKEN secret in the private desktop source repository"
+            exit 1
+          fi
+
+          ASSETS=()
+          for file in dist/*.dmg dist/*.zip dist/*.exe dist/*.blockmap; do
+            [ -f "$file" ] && ASSETS+=("$file")
+          done
+          if [ "${#ASSETS[@]}" -eq 0 ]; then
+            echo "::error::No desktop installer assets were produced"
+            exit 1
+          fi
+
+          gh release create "$RELEASE_TAG" "${ASSETS[@]}" \
+            --repo jaswin-dev/musiclover-updates \
+            --title "MusicLover Player $VERSION ($PLATFORM_KEY)" \
+            --notes "Desktop update $VERSION for $PLATFORM_KEY"
+
+          MANIFEST_PATH="desktop/$METADATA"
+          MANIFEST_CONTENT="$(base64 -w 0 "dist/$METADATA")"
+          EXISTING_SHA="$(gh api "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH?ref=main" --jq '.sha' 2>/dev/null || true)"
+
+          if [ -n "$EXISTING_SHA" ] && [ "$EXISTING_SHA" != "null" ]; then
+            gh api --method PUT "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH" \
+              -f message="Publish $PLATFORM_KEY desktop update $VERSION" \
+              -f content="$MANIFEST_CONTENT" -f sha="$EXISTING_SHA" -f branch=main
+          else
+            gh api --method PUT "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH" \
+              -f message="Publish $PLATFORM_KEY desktop update $VERSION" \
+              -f content="$MANIFEST_CONTENT" -f branch=main
+          fi
+
+      - name: Upload installer artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-${{ matrix.platform }}
+          name: desktop-${{ matrix.platform_key }}
           path: |
             dist/*.dmg
             dist/*.zip
@@ -73,32 +154,3 @@ jobs:
             dist/*.blockmap
           if-no-files-found: error
           retention-days: 14
-      - name: Prepare update metadata and publish to public updates repository
-        if: always() && success()
-        env:
-          UPDATE_REPO_TOKEN: ${{ secrets.UPDATE_REPO_TOKEN }}
-          VERSION: ${{ steps.version.outputs.version }}
-          PLATFORM: ${{ matrix.platform }}
-          RUNNER_OS: ${{ runner.os }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "$UPDATE_REPO_TOKEN" ]; then
-            echo "::error::Missing UPDATE_REPO_TOKEN secret in the private desktop source repository"
-            exit 1
-          fi
-          mkdir -p desktop-update
-          python scripts/create-desktop-manifest.py
-          gh auth setup-git
-          gh release create "desktop-v${VERSION}-${PLATFORM// /-}" desktop-update/* --repo jaswin-dev/musiclover-updates --title "MusicLover Player ${VERSION} — ${PLATFORM}" --notes "Desktop update ${VERSION} for ${PLATFORM}" || {
-            echo "Release may already exist; upload release assets to existing tag."
-            gh release upload "desktop-v${VERSION}-${PLATFORM// /-}" desktop-update/* --repo jaswin-dev/musiclover-updates --clobber
-          }
-          MANIFEST_PATH="desktop-latest.json"
-          CONTENT="$(base64 -w 0 desktop-update/desktop-latest.json)"
-          SHA="$(gh api "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH?ref=main" --jq '.sha' 2>/dev/null || true)"
-          if [ -n "$SHA" ] && [ "$SHA" != "null" ]; then
-            gh api --method PUT "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH" -f message="Publish desktop update ${VERSION} (${PLATFORM})" -f content="$CONTENT" -f sha="$SHA" -f branch=main
-          else
-            gh api --method PUT "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH" -f message="Publish desktop update ${VERSION} (${PLATFORM})" -f content="$CONTENT" -f branch=main
-          fi
