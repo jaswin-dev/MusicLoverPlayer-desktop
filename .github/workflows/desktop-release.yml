@@ -1,0 +1,104 @@
+name: Build and publish desktop updates
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "electron/**"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.js"
+      - ".github/workflows/desktop-release.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }} desktop installer
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macOS ARM64
+            os: macos-latest
+            command: dist:mac
+          - platform: Windows x64
+            os: windows-latest
+            command: dist:win
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Set build version
+        id: version
+        shell: bash
+        run: |
+          VERSION_CODE="$((GITHUB_RUN_NUMBER + 1))"
+          VERSION_NAME="1.0.${VERSION_CODE}"
+          echo "version=${VERSION_NAME}" >> "$GITHUB_OUTPUT"
+          npm version "${VERSION_NAME}" --no-git-tag-version --allow-same-version
+      - name: Install dependencies
+        run: npm install
+      - name: Generate Windows and macOS icons
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          python -m pip install --quiet Pillow
+          python scripts/generate-icons.py
+          iconutil -c icns build/icon.iconset -o build/icon.icns
+      - name: Generate Windows icon
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python -m pip install --quiet Pillow
+          python scripts/generate-icons.py
+      - name: Build installer
+        run: npm run ${{ matrix.command }} -- --publish never
+      - name: Upload installer files
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.platform }}
+          path: |
+            dist/*.dmg
+            dist/*.zip
+            dist/*.exe
+            dist/*.yml
+            dist/*.blockmap
+          if-no-files-found: error
+          retention-days: 14
+      - name: Prepare update metadata and publish to public updates repository
+        if: always() && success()
+        env:
+          UPDATE_REPO_TOKEN: ${{ secrets.UPDATE_REPO_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PLATFORM: ${{ matrix.platform }}
+          RUNNER_OS: ${{ runner.os }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$UPDATE_REPO_TOKEN" ]; then
+            echo "::error::Missing UPDATE_REPO_TOKEN secret in the private desktop source repository"
+            exit 1
+          fi
+          mkdir -p desktop-update
+          python scripts/create-desktop-manifest.py
+          gh auth setup-git
+          gh release create "desktop-v${VERSION}-${PLATFORM// /-}" desktop-update/* --repo jaswin-dev/musiclover-updates --title "MusicLover Player ${VERSION} — ${PLATFORM}" --notes "Desktop update ${VERSION} for ${PLATFORM}" || {
+            echo "Release may already exist; upload release assets to existing tag."
+            gh release upload "desktop-v${VERSION}-${PLATFORM// /-}" desktop-update/* --repo jaswin-dev/musiclover-updates --clobber
+          }
+          MANIFEST_PATH="desktop-latest.json"
+          CONTENT="$(base64 -w 0 desktop-update/desktop-latest.json)"
+          SHA="$(gh api "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH?ref=main" --jq '.sha' 2>/dev/null || true)"
+          if [ -n "$SHA" ] && [ "$SHA" != "null" ]; then
+            gh api --method PUT "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH" -f message="Publish desktop update ${VERSION} (${PLATFORM})" -f content="$CONTENT" -f sha="$SHA" -f branch=main
+          else
+            gh api --method PUT "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH" -f message="Publish desktop update ${VERSION} (${PLATFORM})" -f content="$CONTENT" -f branch=main
+          fi
