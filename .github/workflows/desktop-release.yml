@@ -134,14 +134,14 @@ jobs:
 
           MANIFEST_PATH="$METADATA"
           MANIFEST_CONTENT="$(base64 < "dist/$METADATA" | tr -d '\n')"
-          EXISTING_SHA="$(gh api "/repos/jaswin-dev/MusicLoverPlayer-desktop/contents/$MANIFEST_PATH?ref=${GITHUB_REF_NAME}" --jq '.sha' 2>/dev/null || true)"
+          EXISTING_SHA="$(gh api "repos/jaswin-dev/MusicLoverPlayer-desktop/contents/$MANIFEST_PATH?ref=main" --jq '.sha' 2>/dev/null || true)"
 
           if [ -n "$EXISTING_SHA" ] && [ "$EXISTING_SHA" != "null" ]; then
-            gh api --method PUT "/repos/jaswin-dev/MusicLoverPlayer-desktop/contents/$MANIFEST_PATH" \
+            gh api --method PUT "repos/jaswin-dev/MusicLoverPlayer-desktop/contents/$MANIFEST_PATH" \
               -f message="Publish $PLATFORM_KEY desktop update $VERSION" \
               -f content="$MANIFEST_CONTENT" -f sha="$EXISTING_SHA" -f branch=main
           else
-            gh api --method PUT "/repos/jaswin-dev/MusicLoverPlayer-desktop/contents/$MANIFEST_PATH" \
+            gh api --method PUT "repos/jaswin-dev/MusicLoverPlayer-desktop/contents/$MANIFEST_PATH" \
               -f message="Publish $PLATFORM_KEY desktop update $VERSION" \
               -f content="$MANIFEST_CONTENT" -f branch=main
           fi
