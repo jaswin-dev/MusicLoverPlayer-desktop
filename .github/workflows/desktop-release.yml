@@ -96,7 +96,6 @@ jobs:
           RELEASE_TAG: desktop-v${{ steps.version.outputs.version }}-${{ matrix.platform_key }}
           METADATA: ${{ matrix.metadata }}
         run: |
-          python -m pip install --quiet PyYAML
           python scripts/prepare-desktop-feed.py "dist/$METADATA"
 
       - name: Publish installers and platform update metadata
@@ -129,7 +128,7 @@ jobs:
             --notes "Desktop update $VERSION for $PLATFORM_KEY"
 
           MANIFEST_PATH="desktop/$METADATA"
-          MANIFEST_CONTENT="$(base64 -w 0 "dist/$METADATA")"
+          MANIFEST_CONTENT="$(base64 < "dist/$METADATA" | tr -d '\n')"
           EXISTING_SHA="$(gh api "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH?ref=main" --jq '.sha' 2>/dev/null || true)"
 
           if [ -n "$EXISTING_SHA" ] && [ "$EXISTING_SHA" != "null" ]; then
