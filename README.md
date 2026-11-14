@@ -50,7 +50,7 @@ selects **Restart & Update** to install it.
 
 The desktop release workflow builds Apple Silicon macOS (ARM64) and Windows
 (x64) installers separately. It uploads the installers and publishes
-`desktop-latest.json` to the public updates repository. The Android
+`desktop/latest-mac.yml` for macOS and `desktop/latest.yml` for Windows to the public updates repository. The Android
 `latest.json` remains independent and is not overwritten.
 
 ### One-time setup
@@ -69,7 +69,7 @@ desktop application or commit it to source control.
 2. The workflow increments the desktop version, builds the macOS ARM64 and
    Windows x64 installers, and computes SHA-256 hashes.
 3. The workflow publishes platform-specific release assets and updates
-   `desktop-latest.json` in the public updates repository.
+   `desktop/latest-mac.yml` for macOS and `desktop/latest.yml` for Windows in the public updates repository.
 4. Installed desktop apps detect the higher version, download the matching
    platform update, and prompt the user to restart and install.
 
