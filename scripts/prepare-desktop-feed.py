@@ -23,7 +23,7 @@ if not actual_assets:
     raise SystemExit(f"No installer assets found beside {metadata_path}")
 
 def resolve_asset(value):
-    value = value.strip().strip("'\\"")
+    value = value.strip().strip("'\"")
     basename = pathlib.PurePosixPath(value.split("?", 1)[0]).name
     basename = basename.replace("%20", " ")
     if basename in actual_assets:
@@ -31,10 +31,8 @@ def resolve_asset(value):
 
     suffix = pathlib.PurePosixPath(basename).suffix.lower()
     if suffix not in extensions:
-        # Some electron-builder metadata emits only the product-name stem.
-        expected = ".exe" if platform_key == "windows-x64" else None
-        if expected:
-            suffix = expected
+        if platform_key == "windows-x64":
+            suffix = ".exe"
         else:
             candidates = sorted(n for n in actual_assets if n.endswith((".dmg", ".zip")))
             if len(candidates) == 1:
@@ -60,13 +58,13 @@ def rewrite(match):
 
 # Capture the complete YAML scalar, including spaces in installer filenames.
 text = re.sub(
-    r"(?m)^([ \t]*(?:-[ \t]*)?url:[ \t]*)([^\r\\n]+)",
+    r"(?m)^([ \t]*(?:-[ \t]*)?url:[ \t]*)([^\r\n]+)",
     rewrite,
     metadata_path.read_text(encoding="utf-8"),
 )
-text = re.sub(r"(?m)^(path:[ \t]*)([^\r\\n]+)", rewrite, text)
+text = re.sub(r"(?m)^(path:[ \t]*)([^\r\n]+)", rewrite, text)
 
-version_pattern = r"(?m)^version:[ \t]*['\\"]?" + re.escape(version) + r"['\\"]?[ \t]*$"
+version_pattern = r"(?m)^version:[ \t]*['\"]?" + re.escape(version) + r"['\"]?[ \t]*$"
 if not re.search(version_pattern, text):
     raise SystemExit("The Electron update metadata version does not match the workflow version")
 
