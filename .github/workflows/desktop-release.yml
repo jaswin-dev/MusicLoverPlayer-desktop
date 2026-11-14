@@ -15,7 +15,7 @@ on:
       - "scripts/**"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: desktop-release-${{ github.ref }}
@@ -107,18 +107,13 @@ jobs:
       - name: Publish installers and platform update metadata
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.UPDATE_REPO_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.version.outputs.version }}
           PLATFORM_KEY: ${{ matrix.platform_key }}
           RELEASE_TAG: desktop-v${{ steps.version.outputs.version }}-${{ matrix.platform_key }}
           METADATA: ${{ matrix.metadata }}
         run: |
           set -euo pipefail
-          if [ -z "$GH_TOKEN" ]; then
-            echo "::error::Missing UPDATE_REPO_TOKEN secret in the private desktop source repository"
-            exit 1
-          fi
-
           ASSETS=()
           for file in dist/*.dmg dist/*.zip dist/*.exe dist/*.blockmap; do
             [ -f "$file" ] && ASSETS+=("$file")
@@ -128,25 +123,25 @@ jobs:
             exit 1
           fi
 
-          if gh release view "$RELEASE_TAG" --repo jaswin-dev/musiclover-updates >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" "${ASSETS[@]}" --repo jaswin-dev/musiclover-updates --clobber
+          if gh release view "$RELEASE_TAG" --repo jaswin-dev/MusicLoverPlayer-desktop >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "${ASSETS[@]}" --repo jaswin-dev/MusicLoverPlayer-desktop --clobber
           else
             gh release create "$RELEASE_TAG" "${ASSETS[@]}" \
-              --repo jaswin-dev/musiclover-updates \
+              --repo jaswin-dev/MusicLoverPlayer-desktop \
               --title "MusicLover Player $VERSION ($PLATFORM_KEY)" \
               --notes "Desktop update $VERSION for $PLATFORM_KEY"
           fi
 
-          MANIFEST_PATH="desktop/$METADATA"
+          MANIFEST_PATH="$METADATA"
           MANIFEST_CONTENT="$(base64 < "dist/$METADATA" | tr -d '\n')"
-          EXISTING_SHA="$(gh api "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH?ref=main" --jq '.sha' 2>/dev/null || true)"
+          EXISTING_SHA="$(gh api "/repos/jaswin-dev/MusicLoverPlayer-desktop/contents/$MANIFEST_PATH?ref=${GITHUB_REF_NAME}" --jq '.sha' 2>/dev/null || true)"
 
           if [ -n "$EXISTING_SHA" ] && [ "$EXISTING_SHA" != "null" ]; then
-            gh api --method PUT "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH" \
+            gh api --method PUT "/repos/jaswin-dev/MusicLoverPlayer-desktop/contents/$MANIFEST_PATH" \
               -f message="Publish $PLATFORM_KEY desktop update $VERSION" \
               -f content="$MANIFEST_CONTENT" -f sha="$EXISTING_SHA" -f branch=main
           else
-            gh api --method PUT "/repos/jaswin-dev/musiclover-updates/contents/$MANIFEST_PATH" \
+            gh api --method PUT "/repos/jaswin-dev/MusicLoverPlayer-desktop/contents/$MANIFEST_PATH" \
               -f message="Publish $PLATFORM_KEY desktop update $VERSION" \
               -f content="$MANIFEST_CONTENT" -f branch=main
           fi
