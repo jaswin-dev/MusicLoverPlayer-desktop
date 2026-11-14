@@ -129,7 +129,7 @@ ipcMain.handle('app-update:install', () => {
 });
 
 ipcMain.handle('app-update:open-releases', () =>
-  shell.openExternal('https://github.com/jaswin-dev/musiclover-updates/releases')
+  shell.openExternal('https://github.com/jaswin-dev/MusicLoverPlayer-desktop/releases')
 );
 
 
