@@ -118,6 +118,64 @@ function Art({ track, index = 0 }) {
   );
 }
 
+
+function DesktopUpdatePrompt() {
+  const [state, setState] = useState(null);
+  const [dismissed, setDismissed] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const api = window.musicLover;
+    if (!api?.getUpdateState) return undefined;
+    let active = true;
+    api.getUpdateState().then(value => {
+      if (active && value?.packaged) setState(value);
+    }).catch(() => {});
+    const unsubscribe = api.onUpdateEvent?.(value => {
+      if (!active) return;
+      setState(value);
+      if (['available', 'downloading', 'downloaded'].includes(value.status)) setDismissed(false);
+    });
+    return () => { active = false; unsubscribe?.(); };
+  }, []);
+
+  const visible = Boolean(state?.packaged && ['available', 'downloading', 'downloaded', 'error'].includes(state.status) && !dismissed);
+  if (!visible) return null;
+  const downloading = state.status === 'downloading';
+  const downloaded = state.status === 'downloaded';
+  const failed = state.status === 'error';
+  const title = downloaded ? 'Update ready to install' : downloading ? 'Downloading update' : failed ? 'Update check unavailable' : 'A new version is available';
+  const description = downloaded
+    ? 'The update has been downloaded. Restart MusicLover Player to complete installation.'
+    : downloading
+      ? 'Your update is downloading. You can keep listening while it finishes.'
+      : failed
+        ? (state.error || 'Open the official releases page to download the latest installer.')
+        : 'Download the latest MusicLover Player update for your computer.';
+  return (
+    <div className="ml-update-overlay" role="presentation">
+      <section className="ml-update-dialog" role="dialog" aria-modal="true" aria-labelledby="ml-desktop-update-title">
+        <div className="ml-update-icon"><Music2 size={25} /></div>
+        <span className="ml-update-eyebrow">MUSICLOVER PLAYER</span>
+        <h2 id="ml-desktop-update-title">{title}</h2>
+        <p>{description}</p>
+        {(downloading || downloaded) && <div className="ml-update-progress"><span style={{ width: `${state.percent || 0}%` }} /></div>}
+        {state.availableVersion && <small>Version {state.availableVersion}</small>}
+        <div className="ml-update-actions">
+          <button type="button" className="ml-update-later" onClick={() => setDismissed(true)}>Later</button>
+          {downloaded ? (
+            <button type="button" className="ml-update-primary" onClick={async () => { setBusy(true); try { await window.musicLover.installUpdate(); } finally { setBusy(false); } }}>{busy ? 'Restarting…' : 'Restart & Update'}</button>
+          ) : failed ? (
+            <button type="button" className="ml-update-primary" onClick={() => window.musicLover.openReleasesPage()}>Open releases</button>
+          ) : (
+            <button type="button" className="ml-update-primary" disabled={busy || downloading} onClick={async () => { setBusy(true); try { await window.musicLover.downloadUpdate(); } catch (error) { setState(previous => ({ ...previous, status: 'error', error: error.message })); } finally { setBusy(false); } }}>{downloading ? `Downloading ${state.percent || 0}%` : busy ? 'Starting download…' : 'Download update'}</button>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function App() {
   const audioRef = useRef(null);
   const seekRef = useRef(null);
@@ -1354,6 +1412,8 @@ function App() {
         )}
         {toast && <div className="ml-toast" role="status">{toast}</div>}
       </main>
+
+      <DesktopUpdatePrompt />
 
       <audio
         ref={audioRef}
